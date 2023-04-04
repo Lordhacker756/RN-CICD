@@ -31,10 +31,13 @@ jobs:
         -scheme MainApp \
         -destination 'generic/platform=iOS'
         xcodebuild \
-        -exportPath ios/build/testapp.ipa \
+        -exportArchive \
+        -archivePath ios/build/MainApp.xcarchive \
+        -exportPath ios/build \
+        -exportOptionsPlist ios/exportOptions.plist
 
     - name: Upload IPA
       uses: actions/upload-artifact@v2
       with:
         name: testapp
-        path: ios/build/testapp.ipa
+        path: ios/build/MainApp.ipa
