@@ -5,7 +5,7 @@ on:
     branches: [master]
 
 jobs:
-  build_with_signing:
+  build:
     runs-on: macos-12
     steps:
       - name: checkout repository
@@ -21,17 +21,17 @@ jobs:
 
       - name: install yarn dependencies
         run: |
-          cd packages/app-mobile/ios
+          npm i -g corepack
           yarn install
 
       - name: install Cocoapod dependencies
         run: |
-          cd packages/app-mobile/ios
+          cd ./ios
           pod install
 
       - name: build archive
         run: |
-          cd packages/app-mobile/ios
+          cd ./ios
           xcodebuild -workspace MainApp.xcworkspace \
           -scheme "MainApp" \
           -sdk iphoneos \
@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: testbuild
-          path: ios/build/wobble.ipa
+          path: ./ios/build/test.ipa
           # you can also archive the entire directory
           # path: ${{ runner.temp }}/build
           retention-days: 3
