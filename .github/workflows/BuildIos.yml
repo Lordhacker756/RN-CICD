@@ -1,0 +1,41 @@
+name: Build IPA
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Xcode
+      uses: actions/setup-xcode@v2
+      with:
+        xcode-version: '13.2.1'
+
+    - name: Install CocoaPods
+      run: |
+        gem install cocoapods
+
+    - name: Install dependencies
+      run: |
+        cd ./ios
+        pod install
+
+    - name: Build IPA
+      run: |
+        xcodebuild archive \
+        -workspace ./ios/MainApp.xcworkspace \
+        -scheme MainApp \
+        -destination 'generic/platform=iOS'
+        xcodebuild \
+        -exportPath ios/build/testapp.ipa \
+
+    - name: Upload IPA
+      uses: actions/upload-artifact@v2
+      with:
+        name: testapp
+        path: ios/build/testapp.ipa
