@@ -1,0 +1,50 @@
+name: 'Build React Native iOS app'
+
+on:
+  workflow_dispatch:
+    branches: [master]
+
+jobs:
+  build_with_signing:
+    runs-on: macos-12
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: install yarn dependencies
+        run: |
+          cd packages/app-mobile/ios
+          yarn install
+
+      - name: install Cocoapod dependencies
+        run: |
+          cd packages/app-mobile/ios
+          pod install
+
+      - name: build archive
+        run: |
+          cd packages/app-mobile/ios
+          xcodebuild -workspace MainApp.xcworkspace \
+          -scheme "MainApp" \
+          -sdk iphoneos \
+          -configuration Debug \
+          -destination generic/platform=iOS \
+          -archivePath $RUNNER_TEMP/MainApp.xcarchive \
+          archive
+
+      - name: Upload application
+        uses: actions/upload-artifact@v3
+        with:
+          name: testbuild
+          path: ios/build/wobble.ipa
+          # you can also archive the entire directory
+          # path: ${{ runner.temp }}/build
+          retention-days: 3
